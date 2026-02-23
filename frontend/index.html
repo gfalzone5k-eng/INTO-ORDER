@@ -7,7 +7,6 @@
 </head>
 <body>
 
-<!-- 🔒 Protezione login -->
 <script>
   const store = localStorage.getItem("store");
   if (!store) {
@@ -17,26 +16,28 @@
 
 <header class="header">
   <div class="logo">📦</div>
-  <div class="header-info">
+  <div>
     <h1>ScanOrdini</h1>
     <p>Sistema ordini con scanner</p>
     <p class="store-name">Negozio: <strong id="storeName"></strong></p>
   </div>
-
   <button class="logout-btn" onclick="logout()">Logout</button>
 </header>
 
 <div class="container">
 
-  <!-- 🔍 Barra ricerca -->
   <div class="search-box">
-    <input type="text" id="barcodeInput" placeholder="Scansiona o digita codice a barre...">
-    <button onclick="addProduct()">🔍</button>
+    <input type="text" id="barcodeInput"
+      placeholder="Scansiona o digita codice a barre..."
+      onkeypress="handleEnter(event)">
+    <button onclick="startScanner()">📷</button>
+    <button onclick="addProduct()">➕</button>
   </div>
+
+  <div id="reader" style="display:none;"></div>
 
   <div class="main-grid">
 
-    <!-- 🛒 Carrello -->
     <div class="cart">
       <h3>CARRELLO</h3>
       <ul id="cartList">
@@ -44,7 +45,6 @@
       </ul>
     </div>
 
-    <!-- 📊 Riepilogo -->
     <div class="summary">
       <p>Articoli <span id="totalItems">0</span></p>
       <p>Prodotti diversi <span id="differentItems">0</span></p>
@@ -54,19 +54,9 @@
 
   </div>
 
-  <!-- 🧪 Codici prova -->
-  <div class="test-codes">
-    <h4>CODICI DI PROVA</h4>
-    <div class="codes">
-      <button onclick="quickAdd('8001234567890','Pasta Barilla',1.20)">8001234567890 Pasta Barilla</button>
-      <button onclick="quickAdd('8002345678901','Olio Extra',4.50)">8002345678901 Olio Extra</button>
-      <button onclick="quickAdd('8003456789012','Pomodori Pelati',1.00)">8003456789012 Pomodori</button>
-      <button onclick="quickAdd('8004567890123','Mozzarella',2.80)">8004567890123 Mozzarella</button>
-    </div>
-  </div>
-
 </div>
 
+<script src="https://unpkg.com/html5-qrcode"></script>
 <script src="script.js"></script>
 
 <script>
@@ -75,15 +65,6 @@
   function logout() {
     localStorage.removeItem("store");
     window.location.href = "login.html";
-  }
-
-  function confirmOrder() {
-    if (cart.length === 0) {
-      alert("Il carrello è vuoto");
-      return;
-    }
-
-    alert("Ordine confermato dal negozio " + localStorage.getItem("store"));
   }
 </script>
 
