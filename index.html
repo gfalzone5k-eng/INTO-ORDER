@@ -2,45 +2,18 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>ScanOrdini</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Lista Supabase</title>
 </head>
 <body>
 
-<h1>ScanOrdini</h1>
-<p>Sistema ordini con scanner</p>
-<p>Negozio: <strong id="storeName"></strong></p>
+  <h1>Elenco Database</h1>
+  <ul id="lista"></ul>
 
-<div class="search-box">
-  <textarea id="barcodeInput"
-            placeholder="Scansiona, scrivi nome o incolla più codici (uno per riga)..."
-            oninput="searchProducts()"></textarea>
-
-  <input type="number" id="quantityInput" value="1" min="1">
-  <button onclick="addSelectedProduct()">➕</button>
-</div>
-
-<div id="searchResults" class="search-results"></div>
-
-<div class="container">
-  <div class="cart">
-    <h2>CARRELLO</h2>
-    <ul id="cartList"></ul>
-  </div>
-
-  <div class="summary">
-    <p>Articoli <span id="totalItems">0</span></p>
-    <p>Prodotti diversi <span id="differentItems">0</span></p>
-    <h3>Totale €<span id="totalPrice">0.00</span></h3>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js"></script>
-
-<script>
-  document.getElementById("storeName").innerText = localStorage.getItem("store");
-</script>
+  <!-- Libreria Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Il tuo script separato -->
+  <script src="app.js"></script>
 
 </body>
 </html>
