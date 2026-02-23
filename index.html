@@ -1,47 +1,111 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Lista Prodotti</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ordini Prodotti</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  background: #f4f6f9;
+}
+
+header {
+  background: #111827;
+  color: white;
+  padding: 20px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.container {
+  display: flex;
+}
+
+.products {
+  flex: 3;
+  padding: 20px;
+}
+
+.cart {
+  flex: 1;
+  background: white;
+  padding: 20px;
+  border-left: 1px solid #ddd;
+  min-height: 100vh;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.product-card {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+.qty-input {
+  width: 60px;
+  padding: 5px;
+  margin-right: 10px;
+}
+
+.cart-item {
+  margin-bottom: 10px;
+}
+
+.total {
+  font-weight: 600;
+  margin-top: 20px;
+}
+</style>
 </head>
 
 <body>
 
-  <h1>Elenco Prodotti</h1>
-  <ul id="lista"></ul>
+<header>Gestione Ordini</header>
 
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+<div class="container">
 
-    const supabaseUrl = 'https://ftgtvpkmuucjccjxhfxs.supabase.co'
-    const supabaseKey = 'sb_publishable_h5_zYHOK6BrqrSSaHQlcDg_JEiqYgZK'
+<div class="products">
+  <input type="text" id="search" placeholder="🔍 Cerca per nome o barcode">
+  <div id="prodotti"></div>
+</div>
 
-    const supabase = createClient(supabaseUrl, supabaseKey)
+<div class="cart">
+  <h3>🛒 Carrello</h3>
+  <div id="carrello"></div>
+  <div class="total" id="totale"></div>
+  <button id="inviaOrdine">Invia Ordine</button>
+</div>
 
-    async function caricaDati() {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
+</div>
 
-      if (error) {
-        console.error(error)
-        return
-      }
-
-      const lista = document.getElementById('lista')
-      lista.innerHTML = ''
-
-      data.forEach(prod => {
-        const li = document.createElement('li')
-        li.innerHTML = `
-          <strong>${prod.name}</strong> - €${Number(prod.price).toFixed(2)}
-        `
-        lista.appendChild(li)
-      })
-    }
-
-    caricaDati()
-  </script>
+<script type="module" src="./app.js"></script>
 
 </body>
 </html>
