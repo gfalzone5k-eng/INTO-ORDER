@@ -13,22 +13,37 @@ function handleEnter(event) {
 }
 
 async function addProduct() {
-  const barcode = document.getElementById("barcodeInput").value.trim();
-  if (!barcode) return;
+  const input = document.getElementById("barcodeInput").value.trim();
+  if (!input) return;
 
-  // 🔍 Cerca prodotto nel database
-  const { data: product, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("barcode", barcode)
-    .single();
+  let product = null;
 
-  if (error || !product) {
-    alert("Prodotto non trovato nel database");
+  // Se è tutto numero → cerca per barcode
+  if (/^\d+$/.test(input)) {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("barcode", input)
+      .single();
+
+    if (!error) product = data;
+  } else {
+    // Altrimenti cerca per nome (contiene testo)
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .ilike("name", `%${input}%`)
+      .limit(1);
+
+    if (!error && data.length > 0) product = data[0];
+  }
+
+  if (!product) {
+    alert("Prodotto non trovato");
     return;
   }
 
-  const existing = cart.find(item => item.barcode === barcode);
+  const existing = cart.find(item => item.barcode === product.barcode);
 
   if (existing) {
     existing.quantity++;
