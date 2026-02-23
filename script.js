@@ -1,65 +1,123 @@
-// 🔑 Connessione Supabase
+// 🔑 CONFIGURA QUI
 const supabaseUrl = "https://ftgtvpkmuucjccjxhfxs.supabase.co";
 const supabaseKey = "sb_publishable_h5_zYHOK6BrqrSSaHQlcDg_JEiqYgZK";
 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
 let cart = [];
-let total = 0;
+let selectedProduct = null;
 
-function handleEnter(event) {
-  if (event.key === "Enter") {
-    addProduct();
-  }
-}
-
-async function addProduct() {
+// 🔎 RICERCA LIVE
+async function searchProducts() {
   const input = document.getElementById("barcodeInput").value.trim();
-  if (!input) return;
+  const resultsDiv = document.getElementById("searchResults");
 
-  let product = null;
-
-  // Se è tutto numero → cerca per barcode
-  if (/^\d+$/.test(input)) {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .eq("barcode", input)
-      .single();
-
-    if (!error) product = data;
-  } else {
-    // Altrimenti cerca per nome (contiene testo)
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .ilike("name", `%${input}%`)
-      .limit(1);
-
-    if (!error && data.length > 0) product = data[0];
-  }
-
-  if (!product) {
-    alert("Prodotto non trovato");
+  if (!input || input.includes("\n")) {
+    resultsDiv.innerHTML = "";
     return;
   }
 
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+    .or(`barcode.ilike.%${input}%,name.ilike.%${input}%`)
+    .limit(5);
+
+  resultsDiv.innerHTML = "";
+
+  data?.forEach(product => {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <strong>${product.name}</strong><br>
+      ${product.barcode} - €${product.price}
+    `;
+    div.onclick = () => selectProduct(product);
+    resultsDiv.appendChild(div);
+  });
+}
+
+function selectProduct(product) {
+  selectedProduct = product;
+  document.getElementById("barcodeInput").value = product.name;
+  document.getElementById("searchResults").innerHTML = "";
+}
+
+// ➕ AGGIUNTA
+async function addSelectedProduct() {
+  const input = document.getElementById("barcodeInput").value.trim();
+  const quantity = parseInt(document.getElementById("quantityInput").value);
+
+  if (!input) return;
+
+  if (input.includes("\n")) {
+    const barcodes = input.split("\n").map(b => b.trim()).filter(b => b);
+    for (let code of barcodes) {
+      await addByBarcode(code, 1);
+    }
+    resetInput();
+    return;
+  }
+
+  if (selectedProduct) {
+    addToCart(selectedProduct, quantity);
+    resetInput();
+    return;
+  }
+
+  await addByBarcode(input, quantity);
+  resetInput();
+}
+
+async function addByBarcode(barcode, quantity) {
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+    .eq("barcode", barcode)
+    .single();
+
+  if (data) addToCart(data, quantity);
+}
+
+function addToCart(product, quantity) {
   const existing = cart.find(item => item.barcode === product.barcode);
 
   if (existing) {
-    existing.quantity++;
+    existing.quantity += quantity;
   } else {
     cart.push({
       barcode: product.barcode,
       name: product.name,
       price: parseFloat(product.price),
-      quantity: 1
+      quantity: quantity
     });
   }
 
   updateCart();
-  document.getElementById("barcodeInput").value = "";
 }
 
+function resetInput() {
+  selectedProduct = null;
+  document.getElementById("barcodeInput").value = "";
+  document.getElementById("quantityInput").value = 1;
+  document.getElementById("searchResults").innerHTML = "";
+}
+
+// 🗑 RIMOZIONE
+function removeProduct(barcode) {
+  cart = cart.filter(item => item.barcode !== barcode);
+  updateCart();
+}
+
+// ✏️ MODIFICA QTA
+function changeQuantity(barcode, newQty) {
+  const product = cart.find(item => item.barcode === barcode);
+  if (product) {
+    product.quantity = parseInt(newQty);
+    updateCart();
+  }
+}
+
+// 🔄 AGGIORNA CARRELLO
 function updateCart() {
   const cartList = document.getElementById("cartList");
   cartList.innerHTML = "";
@@ -72,57 +130,22 @@ function updateCart() {
     total += item.quantity * item.price;
 
     const li = document.createElement("li");
-    li.textContent = `${item.name} x${item.quantity} - €${(item.price * item.quantity).toFixed(2)}`;
+    li.innerHTML = `
+      <strong>${item.name}</strong><br>
+      ${item.barcode}<br>
+      Qta:
+      <input type="number"
+             value="${item.quantity}"
+             min="1"
+             onchange="changeQuantity('${item.barcode}', this.value)"
+             style="width:60px;">
+      - €${(item.price * item.quantity).toFixed(2)}
+      <span class="remove-btn" onclick="removeProduct('${item.barcode}')">🗑</span>
+    `;
     cartList.appendChild(li);
   });
 
   document.getElementById("totalItems").innerText = totalItems;
   document.getElementById("differentItems").innerText = cart.length;
   document.getElementById("totalPrice").innerText = total.toFixed(2);
-}
-
-function confirmOrder() {
-  if (cart.length === 0) {
-    alert("Il carrello è vuoto");
-    return;
-  }
-
-  alert("Ordine confermato da " + localStorage.getItem("store"));
-  cart = [];
-  updateCart();
-}
-
-let scannerActive = false;
-let html5QrCode;
-
-function startScanner() {
-  const reader = document.getElementById("reader");
-
-  if (!scannerActive) {
-    reader.style.display = "block";
-    html5QrCode = new Html5Qrcode("reader");
-
-    html5QrCode.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: 250 },
-      (decodedText) => {
-        document.getElementById("barcodeInput").value = decodedText;
-        addProduct();
-        stopScanner();
-      }
-    );
-
-    scannerActive = true;
-  } else {
-    stopScanner();
-  }
-}
-
-function stopScanner() {
-  if (html5QrCode) {
-    html5QrCode.stop().then(() => {
-      document.getElementById("reader").style.display = "none";
-      scannerActive = false;
-    });
-  }
 }
