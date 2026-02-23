@@ -1,6 +1,6 @@
 // 🔑 CONFIGURA QUI
-const supabaseUrl = "TUO_SUPABASE_URL";
-const supabaseKey = "TUO_SUPABASE_PUBLISHABLE_KEY";
+const supabaseUrl = "https://ftgtvpkmuucjccjxhfxs.supabase.co";
+const supabaseKey = "sb_publishable_h5_zYHOK6BrqrSSaHQlcDg_JEiqYgZK";
 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
