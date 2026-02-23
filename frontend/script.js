@@ -1,26 +1,31 @@
 let cart = [];
 let total = 0;
 
-function addProduct() {
-  const barcode = document.getElementById("barcodeInput").value;
-  if (!barcode) return;
-
-  // Simulazione prodotto
-  quickAdd(barcode, "Prodotto generico", 1.00);
-
-  document.getElementById("barcodeInput").value = "";
+function handleEnter(event) {
+  if (event.key === "Enter") {
+    addProduct();
+  }
 }
 
-function quickAdd(barcode, name, price) {
+function addProduct() {
+  const barcode = document.getElementById("barcodeInput").value.trim();
+  if (!barcode) return;
+
   const existing = cart.find(item => item.barcode === barcode);
 
   if (existing) {
     existing.quantity++;
   } else {
-    cart.push({ barcode, name, price, quantity: 1 });
+    cart.push({
+      barcode: barcode,
+      name: "Prodotto " + barcode,
+      price: 1.00,
+      quantity: 1
+    });
   }
 
   updateCart();
+  document.getElementById("barcodeInput").value = "";
 }
 
 function updateCart() {
@@ -39,7 +44,57 @@ function updateCart() {
     cartList.appendChild(li);
   });
 
+  if (cart.length === 0) {
+    cartList.innerHTML = '<p class="empty">Scansiona un prodotto per iniziare</p>';
+  }
+
   document.getElementById("totalItems").innerText = totalItems;
   document.getElementById("differentItems").innerText = cart.length;
   document.getElementById("totalPrice").innerText = total.toFixed(2);
+}
+
+function confirmOrder() {
+  if (cart.length === 0) {
+    alert("Il carrello è vuoto");
+    return;
+  }
+
+  alert("Ordine confermato da " + localStorage.getItem("store"));
+  cart = [];
+  updateCart();
+}
+
+let scannerActive = false;
+let html5QrCode;
+
+function startScanner() {
+  const reader = document.getElementById("reader");
+
+  if (!scannerActive) {
+    reader.style.display = "block";
+    html5QrCode = new Html5Qrcode("reader");
+
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      (decodedText) => {
+        document.getElementById("barcodeInput").value = decodedText;
+        addProduct();
+        stopScanner();
+      }
+    );
+
+    scannerActive = true;
+  } else {
+    stopScanner();
+  }
+}
+
+function stopScanner() {
+  if (html5QrCode) {
+    html5QrCode.stop().then(() => {
+      document.getElementById("reader").style.display = "none";
+      scannerActive = false;
+    });
+  }
 }
