@@ -1,5 +1,5 @@
 function login() {
-  const username = document.getElementById("username").value.trim();
+  const username = document.getElementById("username").value.trim().toUpperCase();
   const password = document.getElementById("password").value.trim();
   const error = document.getElementById("error");
 
