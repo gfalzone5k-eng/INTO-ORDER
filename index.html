@@ -10,11 +10,38 @@
   <h1>Elenco Prodotti</h1>
   <ul id="lista"></ul>
 
-  <!-- Libreria Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-  <!-- Il tuo file JavaScript -->
-  <script src="./app.js" defer></script>
+    const supabaseUrl = 'https://TUO-PROGETTO.supabase.co'
+    const supabaseKey = 'TUA_ANON_PUBLIC_KEY'
+
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    async function caricaDati() {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      const lista = document.getElementById('lista')
+      lista.innerHTML = ''
+
+      data.forEach(prod => {
+        const li = document.createElement('li')
+        li.innerHTML = `
+          <strong>${prod.name}</strong> - €${Number(prod.price).toFixed(2)}
+        `
+        lista.appendChild(li)
+      })
+    }
+
+    caricaDati()
+  </script>
 
 </body>
 </html>
