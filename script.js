@@ -7,9 +7,21 @@ function handleEnter(event) {
   }
 }
 
-function addProduct() {
+async function addProduct() {
   const barcode = document.getElementById("barcodeInput").value.trim();
   if (!barcode) return;
+
+  // 🔍 Cerca prodotto nel database
+  const { data: product, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("barcode", barcode)
+    .single();
+
+  if (error || !product) {
+    alert("Prodotto non trovato nel database");
+    return;
+  }
 
   const existing = cart.find(item => item.barcode === barcode);
 
@@ -17,9 +29,9 @@ function addProduct() {
     existing.quantity++;
   } else {
     cart.push({
-      barcode: barcode,
-      name: "Prodotto " + barcode,
-      price: 1.00,
+      barcode: product.barcode,
+      name: product.name,
+      price: parseFloat(product.price),
       quantity: 1
     });
   }
