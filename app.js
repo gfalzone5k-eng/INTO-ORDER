@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 // 🔹 METTI I TUOI DATI QUI
 const supabaseUrl = 'https://ftgtvpkmuucjccjxhfxs.supabase.co'
-const supabaseKey = 'sb_publishable_Wu4vYnTuSNtc9UutqJeVrw_nexM15PH'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0Z3R2cGttdXVjamNjanhoZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NTQ1NDMsImV4cCI6MjA4NzQzMDU0M30.78OFQ0tfqvVvBcMhZ3rFAsO-oar3o4yAVKZrzc3zldk'
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
