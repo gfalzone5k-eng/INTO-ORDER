@@ -45,7 +45,7 @@ function updateCart() {
   cartList.innerHTML = "";
 
   let totalItems = 0;
-  total = 0;
+  let total = 0;
 
   cart.forEach(item => {
     totalItems += item.quantity;
@@ -55,10 +55,6 @@ function updateCart() {
     li.textContent = `${item.name} x${item.quantity} - €${(item.price * item.quantity).toFixed(2)}`;
     cartList.appendChild(li);
   });
-
-  if (cart.length === 0) {
-    cartList.innerHTML = '<p class="empty">Scansiona un prodotto per iniziare</p>';
-  }
 
   document.getElementById("totalItems").innerText = totalItems;
   document.getElementById("differentItems").innerText = cart.length;
