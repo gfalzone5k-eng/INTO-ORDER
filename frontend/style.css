@@ -8,7 +8,7 @@ body {
 .header {
   display: flex;
   align-items: center;
-  gap: 15px;
+  justify-content: space-between;
   margin-bottom: 20px;
 }
 
@@ -27,14 +27,14 @@ body {
 
 .search-box {
   display: flex;
+  gap: 5px;
   margin-bottom: 20px;
 }
 
 .search-box input {
   flex: 1;
   padding: 15px;
-  font-size: 16px;
-  border-radius: 8px 0 0 8px;
+  border-radius: 8px;
   border: 2px solid #2ecc71;
 }
 
@@ -43,7 +43,7 @@ body {
   border: none;
   background: #2d6cdf;
   color: white;
-  border-radius: 0 8px 8px 0;
+  border-radius: 8px;
   cursor: pointer;
 }
 
@@ -53,28 +53,10 @@ body {
   gap: 20px;
 }
 
-.cart, .summary, .test-codes {
+.cart, .summary {
   background: white;
   padding: 20px;
   border-radius: 12px;
-}
-
-.cart ul {
-  list-style: none;
-  padding: 0;
-}
-
-.cart li {
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.empty {
-  color: #777;
-}
-
-.summary h2 {
-  color: #2d6cdf;
 }
 
 .confirm {
@@ -87,14 +69,6 @@ body {
   margin-top: 10px;
 }
 
-.codes button {
-  margin: 5px;
-  padding: 8px;
-  border-radius: 20px;
-  border: none;
-  background: #e0e0e0;
-  cursor: pointer;
-}
 .login-container {
   max-width: 400px;
   margin: 100px auto;
@@ -108,18 +82,6 @@ body {
   width: 100%;
   padding: 12px;
   margin: 10px 0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-.login-container button {
-  width: 100%;
-  padding: 12px;
-  background: #2d6cdf;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
 }
 
 .error {
