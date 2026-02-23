@@ -1,23 +1,28 @@
-const supabaseUrl = 'https://ftgtvpkmuucjccjxhfxs.supabase.co'
-const supabaseKey = 'sb_publishable_h5_zYHOK6BrqrSSaHQlcDg_JEiqYgZK'
+const supabaseUrl = 'https://TUO-PROGETTO.supabase.co'
+const supabaseKey = 'TUA_ANON_KEY'
 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
 
 async function caricaDati() {
   const { data, error } = await supabase
-    .from('nome_tabella')
+    .from('products')
     .select('*')
 
   if (error) {
-    console.error('Errore:', error)
+    console.error(error)
     return
   }
 
-  const lista = document.getElementById('lista')
+  console.log(data) // 👈 guarda qui nella console
 
-  data.forEach(item => {
+  const lista = document.getElementById('lista')
+  lista.innerHTML = ''
+
+  data.forEach(prod => {
     const li = document.createElement('li')
-    li.textContent = JSON.stringify(item)
+    li.innerHTML = `
+      <strong>${prod.name}</strong> - €${prod.price}
+    `
     lista.appendChild(li)
   })
 }
