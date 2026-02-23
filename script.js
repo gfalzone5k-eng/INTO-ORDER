@@ -1,3 +1,8 @@
+// 🔑 Connessione Supabase
+const supabaseUrl = "https://ftgtvpkmuucjccjxhfxs.supabase.co";
+const supabaseKey = "sb_publishable_h5_zYHOK6BrqrSSaHQlcDg_JEiqYgZK";
+
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 let cart = [];
 let total = 0;
 
