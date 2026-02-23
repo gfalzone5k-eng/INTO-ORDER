@@ -1,1 +1,60 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>ScanOrdini</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+<header class="header">
+  <div class="logo">📦</div>
+  <div>
+    <h1>ScanOrdini</h1>
+    <p>Sistema ordini con scanner</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Barra ricerca -->
+  <div class="search-box">
+    <input type="text" id="barcodeInput" placeholder="Scansiona o digita codice a barre...">
+    <button onclick="addProduct()">🔍</button>
+  </div>
+
+  <div class="main-grid">
+
+    <!-- Carrello -->
+    <div class="cart">
+      <h3>CARRELLO</h3>
+      <ul id="cartList">
+        <p class="empty">Scansiona un prodotto per iniziare</p>
+      </ul>
+    </div>
+
+    <!-- Riepilogo -->
+    <div class="summary">
+      <p>Articoli <span id="totalItems">0</span></p>
+      <p>Prodotti diversi <span id="differentItems">0</span></p>
+      <h2>Totale €<span id="totalPrice">0.00</span></h2>
+      <button class="confirm">✔ Conferma Ordine</button>
+    </div>
+
+  </div>
+
+  <!-- Codici prova -->
+  <div class="test-codes">
+    <h4>CODICI DI PROVA</h4>
+    <div class="codes">
+      <button onclick="quickAdd('8001234567890','Pasta Barilla',1.20)">8001234567890 Pasta Barilla</button>
+      <button onclick="quickAdd('8002345678901','Olio Extra',4.50)">8002345678901 Olio Extra</button>
+      <button onclick="quickAdd('8003456789012','Pomodori Pelati',1.00)">8003456789012 Pomodori</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
