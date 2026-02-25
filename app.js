@@ -52,8 +52,8 @@ document.getElementById('search').addEventListener('input', (e) => {
   const valore = e.target.value.toLowerCase()
 
   const filtrati = prodotti.filter(p =>
-    p.codice_articolo.toLowerCase().includes(valore) ||
-    p.descrizione.toLowerCase().includes(valore)
+    String(p.codice_articolo).toLowerCase().includes(valore) ||
+    String(p.descrizione).toLowerCase().includes(valore)
   )
 
   mostraProdotti(filtrati)
