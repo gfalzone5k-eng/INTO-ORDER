@@ -1,8 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const supabaseUrl = 'https://ftgtvpkmuucjccjxhfxs.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0Z3R2cGttdXVjamNjanhoZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NTQ1NDMsImV4cCI6MjA4NzQzMDU0M30.78OFQ0tfqvVvBcMhZ3rFAsO-oar3o4yAVKZrzc3zldk'
-
+const supabaseKey = 'LA_TUA_ANON_KEY'
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 let prodotti = []
@@ -12,16 +11,17 @@ let carrello = []
 // CARICA ARTICOLI
 // ----------------------
 async function caricaProdotti() {
+
   const { data, error } = await supabase
-    .from('ARTICOLI')
+    .from('articoli')   // 👈 minuscolo (importante!)
     .select('*')
 
   if (error) {
-    console.error(error)
+    console.error("Errore Supabase:", error)
     return
   }
 
-  prodotti = data
+  prodotti = data || []
   mostraProdotti(prodotti)
 }
 
@@ -29,33 +29,38 @@ async function caricaProdotti() {
 // MOSTRA PRODOTTI
 // ----------------------
 function mostraProdotti(lista) {
+
   const container = document.getElementById('prodotti')
   container.innerHTML = ''
 
   lista.forEach(prod => {
+
+    const codice = String(prod.codice_articolo ?? '')
+    const descrizione = String(prod.descrizione ?? '')
+
     const div = document.createElement('div')
     div.className = 'product-card'
     div.innerHTML = `
-      <strong>${prod.codice_articolo}</strong><br>
-      ${prod.descrizione}<br><br>
-      <input type="number" min="1" value="1" class="qty-input" id="q-${prod.codice_articolo}">
-      <button onclick="aggiungi('${prod.codice_articolo}')">Aggiungi</button>
+      <strong>${codice}</strong><br>
+      ${descrizione}<br><br>
+      <input type="number" min="1" value="1" class="qty-input" id="q-${codice}">
+      <button onclick="aggiungi('${codice}')">Aggiungi</button>
     `
     container.appendChild(div)
   })
 }
 
 // ----------------------
-// RICERCA
+// RICERCA (NON CASE SENSITIVE + SICURA)
 // ----------------------
-document.getElementById('search').addEventListener('input', (e) => {
+document.getElementById('search').addEventListener('input', function(e) {
 
   const valore = e.target.value.trim().toLowerCase()
 
-  const filtrati = prodotti.filter(p => {
+  const filtrati = prodotti.filter(function(p) {
 
-    const codice = (p.codice_articolo ?? '').toString().toLowerCase()
-    const descrizione = (p.descrizione ?? '').toString().toLowerCase()
+    const codice = String(p.codice_articolo ?? '').toLowerCase()
+    const descrizione = String(p.descrizione ?? '').toLowerCase()
 
     return codice.includes(valore) || descrizione.includes(valore)
   })
@@ -68,10 +73,17 @@ document.getElementById('search').addEventListener('input', (e) => {
 // ----------------------
 window.aggiungi = function(codice) {
 
-  const prodotto = prodotti.find(p => p.codice_articolo === codice)
-  const quantita = parseInt(document.getElementById(`q-${codice}`).value)
+  const prodotto = prodotti.find(p => 
+    String(p.codice_articolo) === String(codice)
+  )
 
-  const esistente = carrello.find(p => p.codice_articolo === codice)
+  if (!prodotto) return
+
+  const quantita = parseInt(document.getElementById(`q-${codice}`).value) || 1
+
+  const esistente = carrello.find(p =>
+    String(p.codice_articolo) === String(codice)
+  )
 
   if (esistente) {
     esistente.quantita += quantita
@@ -86,24 +98,33 @@ window.aggiungi = function(codice) {
 // AGGIORNA CARRELLO
 // ----------------------
 function aggiornaCarrello() {
+
   const div = document.getElementById('carrello')
   div.innerHTML = ''
 
   carrello.forEach(p => {
+
+    const codice = String(p.codice_articolo)
+    const descrizione = String(p.descrizione)
+
     div.innerHTML += `
       <div class="cart-item">
-        ${p.codice_articolo} - ${p.descrizione} x ${p.quantita}
-        <button onclick="rimuovi('${p.codice_articolo}')">❌</button>
+        ${codice} - ${descrizione} x ${p.quantita}
+        <button onclick="rimuovi('${codice}')">❌</button>
       </div>
     `
   })
 }
 
 // ----------------------
-// RIMUOVI DAL CARRELLO
+// RIMUOVI
 // ----------------------
 window.rimuovi = function(codice) {
-  carrello = carrello.filter(p => p.codice_articolo !== codice)
+
+  carrello = carrello.filter(p =>
+    String(p.codice_articolo) !== String(codice)
+  )
+
   aggiornaCarrello()
 }
 
@@ -114,7 +135,7 @@ document.getElementById('inviaOrdine').addEventListener('click', function() {
 
   const sede = document.getElementById('sede').value.trim()
 
-  if (sede === "") {
+  if (!sede) {
     alert("Inserisci la sede prima di inviare l'ordine")
     return
   }
