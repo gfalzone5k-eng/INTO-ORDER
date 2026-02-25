@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ordini Prodotti</title>
+<title>Gestione Ordini</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
@@ -68,6 +68,11 @@ button:hover {
   background: #1d4ed8;
 }
 
+button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
 .qty-input {
   width: 60px;
   padding: 5px;
@@ -76,15 +81,6 @@ button:hover {
 
 .cart-item {
   margin-bottom: 10px;
-}
-
-.total {
-  font-weight: 600;
-  margin-top: 20px;
-}
-  button:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
 }
 </style>
 </head>
@@ -95,28 +91,36 @@ button:hover {
 
 <div class="container">
 
-<div class="products">
-  <input type="text" id="search" placeholder="🔍 Cerca per nome o barcode">
-  <div id="prodotti"></div>
+  <!-- SEZIONE PRODOTTI -->
+  <div class="products">
+    <input type="text" id="search" placeholder="🔍 Cerca per codice o descrizione">
+    <div id="prodotti"></div>
+  </div>
+
+  <!-- SEZIONE CARRELLO -->
+  <div class="cart">
+    <h3>🛒 Carrello</h3>
+
+    <h4>Sede *</h4>
+    <input type="text" id="sede" placeholder="Inserisci la sede" required>
+
+    <div id="carrello"></div>
+
+    <button id="inviaOrdine" disabled>Invia Ordine</button>
+  </div>
+
 </div>
 
-<div class="cart">
-  <h3>🛒 Carrello</h3>
-
-  <h4>Sede *</h4>
-  <input type="text" id="sede" placeholder="Inserisci la sede" required>
-
-  <div id="carrello"></div>
-  <div class="total" id="totale"></div>
-  <button id="inviaOrdine">Invia Ordine</button>
-</div>
-
-<script type="module" src="./app.js"></script>
+<!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script>
   (function(){
     emailjs.init("V2AqVZ5Nr5ox99bsY");
   })();
 </script>
+
+<!-- App JS -->
+<script type="module" src="./app.js"></script>
+
 </body>
 </html>
