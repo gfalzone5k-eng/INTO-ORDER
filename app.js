@@ -160,11 +160,11 @@ document.getElementById('inviaOrdine').addEventListener('click', function() {
     return
   }
 
-  let testo = ""
+ let testo = ""
 
-  carrello.forEach(p => {
-    testo += `${p.codice_articolo} - ${p.descrizione} - Quantità: ${p.quantita}\n`
-  })
+carrello.forEach(p => {
+  testo += `${String(p.codice_articolo).padEnd(14)} - ${p.descrizione} - Quantità: ${p.quantita}\n`
+})
 
   const templateParams = {
     message: testo,
