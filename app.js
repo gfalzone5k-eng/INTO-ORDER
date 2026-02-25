@@ -168,7 +168,8 @@ carrello.forEach(p => {
 
   const templateParams = {
     message: testo,
-    sede: sede
+    sede: sede,
+    descrizione: descrizioneOrdine || "Nessuna descrizione"
   }
 
   emailjs.send(
