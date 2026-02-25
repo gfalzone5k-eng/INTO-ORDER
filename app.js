@@ -93,6 +93,13 @@ window.rimuovi = function(id) {
 
 document.getElementById('inviaOrdine').addEventListener('click', function() {
 
+  const sede = document.getElementById('sede').value.trim()
+
+  if (sede === "") {
+    alert("Inserisci la sede prima di inviare l'ordine")
+    return
+  }
+
   if (carrello.length === 0) {
     alert("Carrello vuoto")
     return
@@ -108,17 +115,19 @@ document.getElementById('inviaOrdine').addEventListener('click', function() {
 
   const templateParams = {
     message: testo,
-    totale: totale.toFixed(2)
+    totale: totale.toFixed(2),
+    sede: sede
   }
 
   emailjs.send(
-    "service_utzs75y",     // il tuo Service ID
-    "template_1joanb4",    // il tuo Template ID
+    "service_utzs75y",
+    "template_1joanb4",
     templateParams
   )
-  .then(function(response) {
+  .then(function() {
     alert("Ordine inviato con successo ✅")
     carrello = []
+    document.getElementById('sede').value = ""
     aggiornaCarrello()
   })
   .catch(function(error) {
