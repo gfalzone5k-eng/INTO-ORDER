@@ -193,13 +193,20 @@ carrello.forEach(p => {
 // BLOCCO CONTROLLO SEDE
 // ----------------------
 const sedeInput = document.getElementById('sede')
+const passwordInput = document.getElementById('password')
 const bottoneInvia = document.getElementById('inviaOrdine')
 
 bottoneInvia.disabled = true
 
-sedeInput.addEventListener('input', function() {
-  bottoneInvia.disabled = sedeInput.value.trim() === ""
-})
+function verificaCampi() {
+  const sedeValida = sedeInput.value.trim() !== ""
+  const passwordCorretta = passwordInput.value === "INTO"
+
+  bottoneInvia.disabled = !(sedeValida && passwordCorretta)
+}
+
+sedeInput.addEventListener('input', verificaCampi)
+passwordInput.addEventListener('input', verificaCampi)
 
 // ----------------------
 caricaProdotti()
