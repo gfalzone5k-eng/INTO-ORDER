@@ -91,23 +91,41 @@ window.rimuovi = function(id) {
   aggiornaCarrello()
 }
 
-document.getElementById('inviaOrdine').addEventListener('click', () => {
+document.getElementById('inviaOrdine').addEventListener('click', function() {
 
   if (carrello.length === 0) {
     alert("Carrello vuoto")
     return
   }
 
-  let testo = "Ordine:\n\n"
+  let testo = ""
+  let totale = 0
+
   carrello.forEach(p => {
     testo += `${p.name} - Quantità: ${p.quantita}\n`
+    totale += p.price * p.quantita
   })
 
-  const mail = "tua@email.com"
-  const subject = "Nuovo Ordine"
-  const body = encodeURIComponent(testo)
+  const templateParams = {
+    message: testo,
+    totale: totale.toFixed(2)
+  }
 
-  window.location.href = `mailto:${mail}?subject=${subject}&body=${body}`
+  emailjs.send(
+    "service_utzs75y",     // il tuo Service ID
+    "template_1joanb4",    // il tuo Template ID
+    templateParams
+  )
+  .then(function(response) {
+    alert("Ordine inviato con successo ✅")
+    carrello = []
+    aggiornaCarrello()
+  })
+  .catch(function(error) {
+    alert("Errore invio ordine ❌")
+    console.log(error)
+  })
+
 })
 
 caricaProdotti()
