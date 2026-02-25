@@ -49,12 +49,16 @@ function mostraProdotti(lista) {
 // RICERCA
 // ----------------------
 document.getElementById('search').addEventListener('input', (e) => {
-  const valore = e.target.value.toLowerCase()
 
-  const filtrati = prodotti.filter(p =>
-    String(p.codice_articolo).toLowerCase().includes(valore) ||
-    String(p.descrizione).toLowerCase().includes(valore)
-  )
+  const valore = e.target.value.trim().toLowerCase()
+
+  const filtrati = prodotti.filter(p => {
+
+    const codice = (p.codice_articolo ?? '').toString().toLowerCase()
+    const descrizione = (p.descrizione ?? '').toString().toLowerCase()
+
+    return codice.includes(valore) || descrizione.includes(valore)
+  })
 
   mostraProdotti(filtrati)
 })
