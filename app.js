@@ -55,14 +55,29 @@ function mostraProdotti(lista) {
 // ----------------------
 document.getElementById('search').addEventListener('input', function(e) {
 
-  const valore = e.target.value.trim().toLowerCase()
+  const valore = e.target.value
+    .toLowerCase()
+    .trim()
+
+  if (valore === "") {
+    mostraProdotti(prodotti)
+    return
+  }
+
+  // Divide le parole per spazio
+  const parole = valore.split(/\s+/)
 
   const filtrati = prodotti.filter(function(p) {
 
-    const codice = String(p.codice_articolo ?? '').toLowerCase()
-    const descrizione = String(p.descrizione ?? '').toLowerCase()
+    const testoCompleto = (
+      String(p.codice_articolo ?? '') + " " +
+      String(p.descrizione ?? '')
+    ).toLowerCase()
 
-    return codice.includes(valore) || descrizione.includes(valore)
+    // Tutte le parole devono essere presenti
+    return parole.every(parola =>
+      testoCompleto.includes(parola)
+    )
   })
 
   mostraProdotti(filtrati)
