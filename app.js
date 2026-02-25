@@ -138,3 +138,17 @@ document.getElementById('inviaOrdine').addEventListener('click', function() {
 })
 
 caricaProdotti()
+// ----------------------
+// BLOCCO CONTROLLO SEDE
+// ----------------------
+
+const sedeInput = document.getElementById('sede')
+const bottoneInvia = document.getElementById('inviaOrdine')
+
+sedeInput.addEventListener('input', function() {
+  if (sedeInput.value.trim() !== "") {
+    bottoneInvia.disabled = false
+  } else {
+    bottoneInvia.disabled = true
+  }
+})
