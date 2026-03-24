@@ -127,28 +127,29 @@ button:disabled {
 
 .cart {
   flex: 1;
-  background: var(--card);
-  padding: 20px;
+  background: white;
   border-radius: var(--radius);
-  box-shadow: 0 4px 18px rgba(0,0,0,0.06);
-  position: sticky;
-  top: 20px;
-  height: fit-content;
+  padding: 15px;
+  border: 1px solid var(--border);
+
+  display: flex;
+  flex-direction: column;
+
+  height: 80vh; /* altezza fissa */
 }
+
+
 
 .cart h3 {
   margin-top: 0;
   margin-bottom: 15px;
 }
 
-.cart-item {
-  padding: 10px;
-  border-radius: 10px;
-  background: #f8fafc;
+.cart-items {
+  overflow-y: auto;
+  flex: 1;
   margin-bottom: 10px;
-  font-size: 14px;
 }
-
 /* ================== RESPONSIVE ================== */
 
 @media (max-width: 900px) {
