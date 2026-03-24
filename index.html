@@ -135,31 +135,35 @@ button:disabled {
   display: flex;
   flex-direction: column;
 
-  height: 80vh; /* altezza fissa */
+  height: 80vh;
 }
 
-
-
-.cart h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-}
-
-.cart-items {
+/* contenuto scrollabile */
+.cart-content {
   overflow-y: auto;
   flex: 1;
-  margin-bottom: 10px;
 }
+
+/* footer fisso */
+.cart-footer {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding-top: 10px;
+}
+
+/* bottone grande */
+#inviaOrdine {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+}
+
 /* ================== RESPONSIVE ================== */
 
 @media (max-width: 900px) {
   .container {
     flex-direction: column;
-  }
-
-  .cart {
-    position: relative;
-    top: auto;
   }
 }
 </style>
@@ -171,36 +175,47 @@ button:disabled {
 
 <div class="container">
 
-  <!-- SEZIONE PRODOTTI -->
+  <!-- PRODOTTI -->
   <div class="products">
     <input type="text" id="search" placeholder="🔍 Cerca per codice o descrizione">
     <div id="prodotti"></div>
   </div>
 
-  <!-- SEZIONE CARRELLO -->
-<div class="cart">
-  <h3>🛒 Carrello</h3>
+  <!-- CARRELLO -->
+  <div class="cart">
 
-  <h4>Sede *</h4>
-  <input type="text" id="sede" placeholder="Inserisci la sede" required>
+    <div class="cart-content">
 
-  <h4>Password *</h4>
-  <input type="password" id="password" placeholder="Inserisci password" required>
+      <h3>🛒 Carrello</h3>
 
-  <h4>Descrizione (opzionale)</h4>
-  <input type="text" id="descrizioneOrdine" placeholder="Note aggiuntive (facoltative)">
+      <h4>Sede *</h4>
+      <input type="text" id="sede" placeholder="Inserisci la sede" required>
 
-  <div id="carrello"></div>
+      <h4>Password *</h4>
+      <input type="password" id="password" placeholder="Inserisci password" required>
 
-  <button id="inviaOrdine" disabled>Invia Ordine</button>
+      <h4>Descrizione (opzionale)</h4>
+      <input type="text" id="descrizioneOrdine" placeholder="Note aggiuntive (facoltative)">
+
+      <div id="carrello"></div>
+
+    </div>
+
+    <!-- FOOTER FISSO -->
+    <div class="cart-footer">
+      <button id="inviaOrdine" disabled>Invia Ordine</button>
+    </div>
+
+  </div>
+
 </div>
 
 <!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script>
-  (function(){
-    emailjs.init("V2AqVZ5Nr5ox99bsY");
-  })();
+(function(){
+  emailjs.init("V2AqVZ5Nr5ox99bsY");
+})();
 </script>
 
 <!-- App JS -->
