@@ -80,54 +80,11 @@ input:focus {
   box-shadow: 0 8px 22px rgba(0,0,0,0.08);
 }
 
-.product-title {
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.product-actions {
-  display: flex;
-  align-items: center;
-  margin-top: 10px;
-}
-
-/* ================== BOTTONI ================== */
-
-button {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 9px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: 0.2s ease;
-}
-
-button:hover {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
-}
-
-button:disabled {
-  background: #cbd5e1;
-  cursor: not-allowed;
-}
-
-.qty-input {
-  width: 60px;
-  padding: 6px;
-  margin-right: 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  text-align: center;
-}
-
 /* ================== CARRELLO ================== */
 
 .cart {
   flex: 1;
-  background: white;
+  background: var(--card);
   border-radius: var(--radius);
   padding: 15px;
   border: 1px solid var(--border);
@@ -135,76 +92,95 @@ button:disabled {
   display: flex;
   flex-direction: column;
 
-  height: 80vh; /* altezza fissa */
+  height: 80vh; /* 🔥 altezza fissa */
 }
 
-
-
-.cart h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-}
-
+/* SCROLL QUI */
 .cart-items {
-  overflow-y: auto;
   flex: 1;
+  overflow-y: auto;
   margin-bottom: 10px;
+  padding-right: 5px;
 }
-/* ================== RESPONSIVE ================== */
 
-@media (max-width: 900px) {
-  .container {
-    flex-direction: column;
-  }
-
-  .cart {
-    position: relative;
-    top: auto;
-  }
+/* SCROLL STYLE (opzionale figo) */
+.cart-items::-webkit-scrollbar {
+  width: 6px;
 }
+.cart-items::-webkit-scrollbar-thumb {
+  background: #cbd5f5;
+  border-radius: 10px;
+}
+
+/* BOTTONE FISSO */
+.order-button {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding-top: 10px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: var(--primary-hover);
+}
+
 </style>
 </head>
 
 <body>
 
-<header>Gestione Ordini</header>
+<header>
+  Gestione Ordini
+</header>
 
 <div class="container">
 
-  <!-- SEZIONE PRODOTTI -->
+  <!-- PRODOTTI -->
   <div class="products">
-    <input type="text" id="search" placeholder="🔍 Cerca per codice o descrizione">
-    <div id="prodotti"></div>
+    <input type="text" placeholder="Cerca prodotto...">
+
+    <div class="product-card">Prodotto 1</div>
+    <div class="product-card">Prodotto 2</div>
+    <div class="product-card">Prodotto 3</div>
+    <div class="product-card">Prodotto 4</div>
+    <div class="product-card">Prodotto 5</div>
   </div>
 
-  <!-- SEZIONE CARRELLO -->
-<div class="cart">
-  <h3>🛒 Carrello</h3>
+  <!-- CARRELLO -->
+  <div class="cart">
+    <h3>Carrello</h3>
 
-  <h4>Sede *</h4>
-  <input type="text" id="sede" placeholder="Inserisci la sede" required>
+    <div class="cart-items">
+      <!-- prodotti aggiunti -->
+      <div>Prodotto A</div>
+      <div>Prodotto B</div>
+      <div>Prodotto C</div>
+      <div>Prodotto D</div>
+      <div>Prodotto E</div>
+      <div>Prodotto F</div>
+      <div>Prodotto G</div>
+      <div>Prodotto H</div>
+      <div>Prodotto I</div>
+    </div>
 
-  <h4>Password *</h4>
-  <input type="password" id="password" placeholder="Inserisci password" required>
+    <div class="order-button">
+      <button>Ordina</button>
+    </div>
+  </div>
 
-  <h4>Descrizione (opzionale)</h4>
-  <input type="text" id="descrizioneOrdine" placeholder="Note aggiuntive (facoltative)">
-
-  <div id="carrello"></div>
-
-  <button id="inviaOrdine" disabled>Invia Ordine</button>
 </div>
-
-<!-- EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-  (function(){
-    emailjs.init("V2AqVZ5Nr5ox99bsY");
-  })();
-</script>
-
-<!-- App JS -->
-<script type="module" src="./app.js"></script>
 
 </body>
 </html>
