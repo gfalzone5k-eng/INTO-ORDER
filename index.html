@@ -119,6 +119,17 @@ button:disabled {
   padding: 12px;
   font-size: 16px;
 }
+  textarea {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  font-family: 'Inter', sans-serif;
+  resize: none; /* blocca resize manuale */
+  overflow: hidden; /* nasconde scrollbar */
+  min-height: 44px;
+}
 
 /* ================== RESPONSIVE ================== */
 
@@ -161,7 +172,7 @@ button:disabled {
       <input type="password" id="password" placeholder="Inserisci password" required>
 
       <h4>Descrizione (opzionale)</h4>
-      <input type="text" id="descrizioneOrdine" placeholder="Note aggiuntive (facoltative)">
+      <textarea id="descrizioneOrdine" placeholder="Note aggiuntive (facoltative)" rows="2"></textarea>
 
       <div id="carrello"></div>
 
