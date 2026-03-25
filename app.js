@@ -13,7 +13,7 @@ let carrello = []
 async function caricaProdotti() {
 
   const { data, error } = await supabase
-    .from('articoli')   // 👈 minuscolo (importante!)
+    .from('articoli')
     .select('*')
 
   if (error) {
@@ -51,7 +51,7 @@ function mostraProdotti(lista) {
 }
 
 // ----------------------
-// RICERCA (NON CASE SENSITIVE + SICURA)
+// RICERCA
 // ----------------------
 document.getElementById('search').addEventListener('input', function(e) {
 
@@ -64,7 +64,6 @@ document.getElementById('search').addEventListener('input', function(e) {
     return
   }
 
-  // Divide le parole per spazio
   const parole = valore.split(/\s+/)
 
   const filtrati = prodotti.filter(function(p) {
@@ -74,7 +73,6 @@ document.getElementById('search').addEventListener('input', function(e) {
       String(p.descrizione ?? '')
     ).toLowerCase()
 
-    // Tutte le parole devono essere presenti
     return parole.every(parola =>
       testoCompleto.includes(parola)
     )
@@ -209,15 +207,20 @@ function verificaCampi() {
 
 sedeInput.addEventListener('input', verificaCampi)
 passwordInput.addEventListener('input', verificaCampi)
-const textarea = document.getElementById('descrizioneOrdine')
 
+// ----------------------
+// AUTO-RESIZE TEXTAREA
+// ----------------------
 document.addEventListener('DOMContentLoaded', () => {
   const textarea = document.getElementById('descrizioneOrdine')
+
+  textarea.style.height = textarea.scrollHeight + 'px'
 
   textarea.addEventListener('input', function () {
     this.style.height = 'auto'
     this.style.height = this.scrollHeight + 'px'
   })
 })
+
 // ----------------------
 caricaProdotti()
