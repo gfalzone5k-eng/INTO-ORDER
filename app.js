@@ -209,6 +209,15 @@ function verificaCampi() {
 
 sedeInput.addEventListener('input', verificaCampi)
 passwordInput.addEventListener('input', verificaCampi)
+const textarea = document.getElementById('descrizioneOrdine')
 
+document.addEventListener('DOMContentLoaded', () => {
+  const textarea = document.getElementById('descrizioneOrdine')
+
+  textarea.addEventListener('input', function () {
+    this.style.height = 'auto'
+    this.style.height = this.scrollHeight + 'px'
+  })
+})
 // ----------------------
 caricaProdotti()
