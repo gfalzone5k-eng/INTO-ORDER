@@ -122,7 +122,7 @@ function aggiornaCarrello() {
 
     div.innerHTML += `
       <div class="cart-item">
-        ${codice} - ${descrizione} x ${p.quantita}
+        ${descrizione} x ${p.quantita}
         <button onclick="rimuovi('${codice}')">❌</button>
       </div>
     `
