@@ -149,6 +149,7 @@ window.rimuovi = function(codice) {
 document.getElementById('inviaOrdine').addEventListener('click', function() {
 
   const sede = document.getElementById('sede').value.trim()
+  const descrizioneOrdine = document.getElementById('descrizioneOrdine').value.trim()
 
   if (!sede) {
     alert("Inserisci la sede prima di inviare l'ordine")
@@ -160,11 +161,11 @@ document.getElementById('inviaOrdine').addEventListener('click', function() {
     return
   }
 
- let testo = ""
+  let testo = ""
 
-carrello.forEach(p => {
-  testo += `${String(p.codice_articolo).padEnd(14)} - ${p.descrizione} - Quantità: ${p.quantita}\n`
-})
+  carrello.forEach(p => {
+    testo += `${String(p.codice_articolo).padEnd(14)} - ${p.descrizione} - Quantità: ${p.quantita}\n`
+  })
 
   const templateParams = {
     message: testo,
