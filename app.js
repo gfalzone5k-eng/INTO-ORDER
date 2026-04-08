@@ -7,17 +7,90 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 let prodotti = []
 let carrello = []
 
-// ----------------------
-// CARICA ARTICOLI
-// ----------------------
-async function caricaProdotti() {
+const searchInput = document.getElementById('search')
+const carrelloDiv = document.getElementById('carrello')
+const sedeInput = document.getElementById('sede')
+const passwordInput = document.getElementById('password')
+const bottoneInvia = document.getElementById('inviaOrdine')
+const textarea = document.getElementById('descrizioneOrdine')
 
+const warningModal = document.getElementById('warningModal')
+const warningMessage = document.getElementById('warningMessage')
+const warningCancel = document.getElementById('warningCancel')
+const warningProceed = document.getElementById('warningProceed')
+
+const orderSummaryModal = document.getElementById('orderSummaryModal')
+const orderSummaryContent = document.getElementById('orderSummaryContent')
+const summaryClose = document.getElementById('summaryClose')
+const confirmOrderBtn = document.getElementById('confirmOrderBtn')
+
+const toastWrap = document.getElementById('toastWrap')
+
+let pendingAction = null
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+}
+
+function escapeForId(value) {
+  return String(value).replace(/[^a-zA-Z0-9_-]/g, '_')
+}
+
+function showToast(title, text) {
+  const toast = document.createElement('div')
+  toast.className = 'toast'
+  toast.innerHTML = `
+    <div class="toast-title">${escapeHtml(title)}</div>
+    <div class="toast-text">${escapeHtml(text)}</div>
+  `
+  toastWrap.appendChild(toast)
+
+  setTimeout(() => {
+    toast.remove()
+  }, 3200)
+}
+
+function openWarningModal(message, onProceed) {
+  pendingAction = onProceed
+  warningMessage.textContent = message
+  warningModal.classList.add('show')
+}
+
+function closeWarningModal() {
+  pendingAction = null
+  warningModal.classList.remove('show')
+  warningMessage.textContent = ''
+}
+
+warningCancel.addEventListener('click', closeWarningModal)
+
+warningProceed.addEventListener('click', () => {
+  if (typeof pendingAction === 'function') {
+    pendingAction()
+  }
+  closeWarningModal()
+})
+
+warningModal.addEventListener('click', (e) => {
+  if (e.target === warningModal) {
+    closeWarningModal()
+  }
+})
+
+async function caricaProdotti() {
   const { data, error } = await supabase
     .from('articoli')
     .select('*')
+    .order('codice_articolo', { ascending: true })
 
   if (error) {
-    console.error("Errore Supabase:", error)
+    console.error('Errore Supabase:', error)
+    document.getElementById('prodotti').innerHTML = '<p>Errore nel caricamento articoli.</p>'
     return
   }
 
@@ -25,78 +98,89 @@ async function caricaProdotti() {
   mostraProdotti(prodotti)
 }
 
-// ----------------------
-// MOSTRA PRODOTTI
-// ----------------------
 function mostraProdotti(lista) {
-
   const container = document.getElementById('prodotti')
   container.innerHTML = ''
 
-  lista.forEach(prod => {
+  if (!lista.length) {
+    container.innerHTML = '<div class="product-card">Nessun articolo trovato.</div>'
+    return
+  }
 
+  lista.forEach(prod => {
     const codice = String(prod.codice_articolo ?? '')
     const descrizione = String(prod.descrizione ?? '')
+    const avviso = String(prod.avviso_ordine ?? '').trim()
 
     const div = document.createElement('div')
     div.className = 'product-card'
     div.innerHTML = `
-      <strong>${codice}</strong><br>
-      ${descrizione}<br><br>
-      <input type="number" min="1" value="1" class="qty-input" id="q-${codice}">
-      <button onclick="aggiungi('${codice}')">Aggiungi</button>
+      <div class="product-code">${escapeHtml(codice)}</div>
+      <div class="product-desc">${escapeHtml(descrizione)}</div>
+      ${avviso ? `<div class="product-warning-badge">⚠️ Articolo con avviso</div>` : ''}
+      <div class="product-actions">
+        <input type="number" min="1" value="1" class="qty-input" id="q-${escapeForId(codice)}">
+        <button type="button">Aggiungi</button>
+      </div>
     `
+
+    div.querySelector('button').addEventListener('click', () => aggiungi(codice))
     container.appendChild(div)
   })
 }
 
-// ----------------------
-// RICERCA
-// ----------------------
-document.getElementById('search').addEventListener('input', function(e) {
+searchInput.addEventListener('input', function (e) {
+  const valore = e.target.value.toLowerCase().trim()
 
-  const valore = e.target.value
-    .toLowerCase()
-    .trim()
-
-  if (valore === "") {
+  if (valore === '') {
     mostraProdotti(prodotti)
     return
   }
 
   const parole = valore.split(/\s+/)
 
-  const filtrati = prodotti.filter(function(p) {
-
+  const filtrati = prodotti.filter((p) => {
     const testoCompleto = (
-      String(p.codice_articolo ?? '') + " " +
-      String(p.descrizione ?? '')
+      String(p.codice_articolo ?? '') + ' ' +
+      String(p.descrizione ?? '') + ' ' +
+      String(p.avviso_ordine ?? '')
     ).toLowerCase()
 
-    return parole.every(parola =>
-      testoCompleto.includes(parola)
-    )
+    return parole.every(parola => testoCompleto.includes(parola))
   })
 
   mostraProdotti(filtrati)
 })
 
-// ----------------------
-// AGGIUNGI AL CARRELLO
-// ----------------------
-window.aggiungi = function(codice) {
+function getPriorita(prodotto) {
+  const nome = String(prodotto.descrizione ?? '').toUpperCase()
 
-  const prodotto = prodotti.find(p => 
-    String(p.codice_articolo) === String(codice)
-  )
+  if (nome.includes('CIALDA')) return 1
+  if (nome.includes('CAPS') || nome.includes('SNACK')) return 2
+  return 3
+}
 
+function getCarrelloOrdinato() {
+  return [...carrello].sort((a, b) => {
+    const prioritaA = getPriorita(a)
+    const prioritaB = getPriorita(b)
+
+    if (prioritaA !== prioritaB) {
+      return prioritaA - prioritaB
+    }
+
+    return String(a.descrizione ?? '').localeCompare(String(b.descrizione ?? ''))
+  })
+}
+
+function aggiungiAlCarrello(codice) {
+  const prodotto = prodotti.find(p => String(p.codice_articolo) === String(codice))
   if (!prodotto) return
 
-  const quantita = parseInt(document.getElementById(`q-${codice}`).value) || 1
+  const qtyInput = document.getElementById(`q-${escapeForId(codice)}`)
+  const quantita = Math.max(1, parseInt(qtyInput?.value, 10) || 1)
 
-  const esistente = carrello.find(p =>
-    String(p.codice_articolo) === String(codice)
-  )
+  const esistente = carrello.find(p => String(p.codice_articolo) === String(codice))
 
   if (esistente) {
     esistente.quantita += quantita
@@ -105,49 +189,173 @@ window.aggiungi = function(codice) {
   }
 
   aggiornaCarrello()
+  showToast('Articolo aggiunto', `${prodotto.descrizione} inserito nel carrello`)
 }
 
-// ----------------------
-// AGGIORNA CARRELLO
-// ----------------------
+function aggiungi(codice) {
+  const prodotto = prodotti.find(p => String(p.codice_articolo) === String(codice))
+  if (!prodotto) return
+
+  const avviso = String(prodotto.avviso_ordine ?? '').trim()
+
+  if (avviso) {
+    openWarningModal(avviso, () => aggiungiAlCarrello(codice))
+    return
+  }
+
+  aggiungiAlCarrello(codice)
+}
+
 function aggiornaCarrello() {
+  carrelloDiv.innerHTML = ''
 
-  const div = document.getElementById('carrello')
-  div.innerHTML = ''
+  if (carrello.length === 0) {
+    carrelloDiv.innerHTML = '<p class="empty-state">Il carrello è vuoto.</p>'
+    return
+  }
 
-  carrello.forEach(p => {
+  const carrelloOrdinato = getCarrelloOrdinato()
 
-    const codice = String(p.codice_articolo)
-    const descrizione = String(p.descrizione)
+  carrelloOrdinato.forEach(p => {
+    const codice = String(p.codice_articolo ?? '')
+    const descrizione = String(p.descrizione ?? '')
 
-    div.innerHTML += `
-      <div class="cart-item">
-        ${descrizione} x ${p.quantita}
-        <button onclick="rimuovi('${codice}')">❌</button>
+    const item = document.createElement('div')
+    item.className = 'cart-item'
+    item.innerHTML = `
+      <div class="cart-item-info">
+        <div class="cart-item-code">${escapeHtml(codice)}</div>
+        <div>${escapeHtml(descrizione)}</div>
+        <div>Quantità: ${escapeHtml(p.quantita)}</div>
       </div>
+      <button type="button" class="danger-btn">❌</button>
     `
+
+    item.querySelector('button').addEventListener('click', () => rimuovi(codice))
+    carrelloDiv.appendChild(item)
   })
 }
 
-// ----------------------
-// RIMUOVI
-// ----------------------
-window.rimuovi = function(codice) {
-
-  carrello = carrello.filter(p =>
-    String(p.codice_articolo) !== String(codice)
-  )
-
+function rimuovi(codice) {
+  carrello = carrello.filter(p => String(p.codice_articolo) !== String(codice))
   aggiornaCarrello()
 }
 
-// ----------------------
-// INVIA ORDINE
-// ----------------------
-document.getElementById('inviaOrdine').addEventListener('click', function() {
+function apriRiepilogoOrdine() {
+  const sede = sedeInput.value.trim()
+  const descrizioneOrdine = textarea.value.trim()
+  const carrelloOrdinato = getCarrelloOrdinato()
 
-  const sede = document.getElementById('sede').value.trim()
-  const descrizioneOrdine = document.getElementById('descrizioneOrdine').value.trim()
+  if (!sede) {
+    alert("Inserisci la sede prima di procedere")
+    return
+  }
+
+  if (carrelloOrdinato.length === 0) {
+    alert('Carrello vuoto')
+    return
+  }
+
+  let html = `
+    <div class="summary-box">
+      <div class="summary-section">
+        <div class="summary-label">Sede</div>
+        <div class="summary-value">${escapeHtml(sede)}</div>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-label">Descrizione ordine</div>
+        <div class="summary-value">${escapeHtml(descrizioneOrdine || 'Nessuna descrizione')}</div>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-label">Articoli</div>
+        <div class="summary-items">
+  `
+
+  carrelloOrdinato.forEach((p) => {
+    const codice = String(p.codice_articolo ?? '')
+    const descrizione = String(p.descrizione ?? '')
+    const qtyId = `summary-q-${escapeForId(codice)}`
+
+    html += `
+      <div class="summary-item">
+        <div class="summary-item-top">
+          <div>
+            <div class="summary-item-code">${escapeHtml(codice)}</div>
+            <div class="summary-item-desc">${escapeHtml(descrizione)}</div>
+          </div>
+        </div>
+
+        <div class="summary-item-actions">
+          <label for="${qtyId}">Quantità</label>
+          <input type="number" min="1" value="${escapeHtml(p.quantita)}" id="${qtyId}">
+          <button type="button" class="secondary-btn" data-action="update" data-codice="${escapeHtml(codice)}">Aggiorna quantità</button>
+          <button type="button" class="danger-btn" data-action="remove" data-codice="${escapeHtml(codice)}">Elimina</button>
+        </div>
+      </div>
+    `
+  })
+
+  html += `
+        </div>
+      </div>
+    </div>
+  `
+
+  orderSummaryContent.innerHTML = html
+  orderSummaryModal.classList.add('show')
+
+  orderSummaryContent.querySelectorAll('[data-action="update"]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const codice = btn.dataset.codice
+      const input = document.getElementById(`summary-q-${escapeForId(codice)}`)
+      const nuovaQuantita = Math.max(1, parseInt(input?.value, 10) || 1)
+
+      const articolo = carrello.find(p => String(p.codice_articolo) === String(codice))
+      if (!articolo) return
+
+      articolo.quantita = nuovaQuantita
+      aggiornaCarrello()
+      apriRiepilogoOrdine()
+    })
+  })
+
+  orderSummaryContent.querySelectorAll('[data-action="remove"]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const codice = btn.dataset.codice
+      carrello = carrello.filter(p => String(p.codice_articolo) !== String(codice))
+      aggiornaCarrello()
+
+      if (carrello.length === 0) {
+        chiudiRiepilogoOrdine()
+        return
+      }
+
+      apriRiepilogoOrdine()
+    })
+  })
+}
+
+function chiudiRiepilogoOrdine() {
+  orderSummaryModal.classList.remove('show')
+  orderSummaryContent.innerHTML = ''
+}
+
+function generaTestoOrdine() {
+  const carrelloOrdinato = getCarrelloOrdinato()
+  let testo = ''
+
+  carrelloOrdinato.forEach(p => {
+    testo += `${String(p.codice_articolo)} - ${p.descrizione} - Quantità: ${p.quantita}\n`
+  })
+
+  return testo
+}
+
+function inviaOrdineFinale() {
+  const sede = sedeInput.value.trim()
+  const descrizioneOrdine = textarea.value.trim()
 
   if (!sede) {
     alert("Inserisci la sede prima di inviare l'ordine")
@@ -155,66 +363,89 @@ document.getElementById('inviaOrdine').addEventListener('click', function() {
   }
 
   if (carrello.length === 0) {
-    alert("Carrello vuoto")
+    alert('Carrello vuoto')
     return
   }
 
-  let testo = ""
-
-  carrello.forEach(p => {
-    testo += `${String(p.codice_articolo).padEnd(14)} - ${p.descrizione} - Quantità: ${p.quantita}\n`
-  })
-
   const templateParams = {
-    message: testo,
+    message: generaTestoOrdine(),
     sede: sede,
-    descrizione: descrizioneOrdine || "Nessuna descrizione"
+    descrizione: descrizioneOrdine || 'Nessuna descrizione'
   }
 
+  confirmOrderBtn.disabled = true
+  confirmOrderBtn.textContent = 'Invio in corso...'
+
   emailjs.send(
-    "service_utzs75y",
-    "template_1joanb4",
+    'service_utzs75y',
+    'template_1joanb4',
     templateParams
   )
-  .then(function() {
-    alert("Ordine inviato con successo ✅")
+  .then(function () {
+    chiudiRiepilogoOrdine()
     carrello = []
-    document.getElementById('sede').value = ""
+    sedeInput.value = ''
+    passwordInput.value = ''
+    textarea.value = ''
     aggiornaCarrello()
+    verificaCampi()
+    resetTextarea()
+    showToast('Ordine inviato', 'L’ordine è stato inviato con successo')
   })
-  .catch(function(error) {
-    alert("Errore invio ordine ❌")
+  .catch(function (error) {
+    alert('Errore invio ordine ❌')
     console.log(error)
   })
-
-})
-
-// ----------------------
-// BLOCCO CONTROLLO SEDE
-// ----------------------
-const sedeInput = document.getElementById('sede')
-const passwordInput = document.getElementById('password')
-const bottoneInvia = document.getElementById('inviaOrdine')
+  .finally(function () {
+    confirmOrderBtn.disabled = false
+    confirmOrderBtn.textContent = 'Invia Ordine'
+  })
+}
 
 bottoneInvia.disabled = true
 
 function verificaCampi() {
-  const sedeValida = sedeInput.value.trim() !== ""
-  const passwordCorretta = passwordInput.value === "INTO"
-
+  const sedeValida = sedeInput.value.trim() !== ''
+  const passwordCorretta = passwordInput.value === 'INTO'
   bottoneInvia.disabled = !(sedeValida && passwordCorretta)
 }
 
 sedeInput.addEventListener('input', verificaCampi)
 passwordInput.addEventListener('input', verificaCampi)
 
-// ----------------------
-// AUTO-RESIZE TEXTAREA
-// ----------------------
-document.addEventListener('DOMContentLoaded', () => {
-  const textarea = document.getElementById('descrizioneOrdine')
+bottoneInvia.addEventListener('click', function () {
+  const sede = sedeInput.value.trim()
 
+  if (!sede) {
+    alert("Inserisci la sede prima di procedere")
+    return
+  }
+
+  if (carrello.length === 0) {
+    alert('Carrello vuoto')
+    return
+  }
+
+  apriRiepilogoOrdine()
+})
+
+summaryClose.addEventListener('click', chiudiRiepilogoOrdine)
+
+confirmOrderBtn.addEventListener('click', inviaOrdineFinale)
+
+orderSummaryModal.addEventListener('click', (e) => {
+  if (e.target === orderSummaryModal) {
+    chiudiRiepilogoOrdine()
+  }
+})
+
+function resetTextarea() {
+  textarea.style.height = 'auto'
   textarea.style.height = textarea.scrollHeight + 'px'
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  resetTextarea()
 
   textarea.addEventListener('input', function () {
     this.style.height = 'auto'
@@ -222,5 +453,5 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 })
 
-// ----------------------
 caricaProdotti()
+aggiornaCarrello()
